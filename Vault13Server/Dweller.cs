@@ -8,13 +8,12 @@ namespace Vault13Server
 {
     class Dweller
     {
-        UInt16 healthPoints = 100;
-        public string Name
-        {
-            set; get;
-        }
+        //мб еще айдишники придумать?
+        const UInt16 maxHealth = 100;
 
-        enum Status
+        UInt16 healthPoints = maxHealth;
+
+        public enum Status
         {
             IN_VAULT,
             IN_WASTELAND,
@@ -22,20 +21,55 @@ namespace Vault13Server
             DEAD,
         };
 
+
+
+        public string Name
+        {
+            set; get;
+        }
+
+        
+
         public UInt16 HP
         {
             set
             {
-                if(value <= 100)
-                {
-                    healthPoints = value;
-
-                }
+            }
+            get
+            {
+                return healthPoints;
             }
         }
-        void la(string fi)
+
+        public void GetDamage(UInt16 damage)
         {
-            fi = "aasd";
+            if (damage >= healthPoints)
+            {
+                healthPoints = 0;
+                PersonalStatus = Status.DEAD;
+            }
+            else
+                healthPoints -= damage;
+        }
+
+        public void FillHealth()
+        {
+            healthPoints = maxHealth;
+        }
+
+        public Status PersonalStatus { get; set; }
+
+
+        public Dweller(string name)
+        {
+            Name = name;
+        }
+
+        static int NewDwellerNameCount = 0;
+        public Dweller()
+        {
+            Name = "Stranger" + NewDwellerNameCount.ToString();
+            NewDwellerNameCount++;
         }
     }
 }
