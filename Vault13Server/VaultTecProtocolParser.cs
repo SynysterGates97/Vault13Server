@@ -8,9 +8,11 @@ namespace Vault13Server
 {
     class VaultTecProtocolParser
     {
-        VaultTecServerProtocol.Command ParseCommandString(string cmd)
+        static public string[] ParseCommandString(string cmd)
         {
-            return VaultTecServerProtocol.Command.UNKNOWN_COMMAND;
+            string[] argv = cmd.Split(',');
+
+            return argv;
         }
     }
 }

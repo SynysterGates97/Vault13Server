@@ -10,23 +10,35 @@ namespace Vault13Server
     [Serializable]
     class VaultTecServerProtocol
     {
-        struct CommandAndArgument
+        public enum Command
         {
-            Command command;
-            string argument;
+            UNKNOWN_COMMAND = 0,
+            SEND_DWELLER,
+            GET_DWELLER_STATUS,
+            POPULATION_COUNT,
+            POPULATION_LIST,
+            MONEY,
+            HELP,
         }
 
-        //commands:
-        //sd <name>,<money>- (send dweller) отправить жителя <name> с жаловнием в <money> крышок в пустоши за крышками.
-            //чтобы отправить жителя за крышками, нужно его ими снарядить.
-            //Жителя отправляют на время T - чем больше время экспедиции и чем меньше здоровье жителе - тем выше вероятность, что он погибнет.
-            //Если житель вернулся - он ждет у убежища.
+        public struct CommandAndArgument
+        {
+            public Command command;
+            public string argument;
+        }
 
-        //howdy <name> - запросить статус жителя:
-            //В убежище
-            //Путешествует
-            //Ожидает у входа
-            //Мёртв
+
+        //commands:
+        //sd,<name>,<money>- (send dweller) отправить жителя <name> с жаловнием в <money> крышок в пустоши за крышками.
+        //чтобы отправить жителя за крышками, нужно его ими снарядить.
+        //Жителя отправляют на время T - чем больше время экспедиции и чем меньше здоровье жителе - тем выше вероятность, что он погибнет.
+        //Если житель вернулся - он ждет у убежища.
+
+        //howdy,<name> - запросить статус жителя:
+        //В убежище
+        //Путешествует
+        //Ожидает у входа
+        //Мёртв
 
         //poplist запросит имена жителей убежища с их статусами
 
@@ -36,16 +48,17 @@ namespace Vault13Server
 
         //help
 
-        public enum Command
+
+        
+
+        static readonly int cmdCount = Enum.GetNames(typeof(Command)).Length;
+
+        struct MyStruct
         {
-            UNKNOWN_COMMAND = -1,
-            SEND_DWELLER,
-            GET_DWELLER_STATUS,
-            POPULATION_COUNT,
-            POPULATION_LIST,
-            MONEY,
-            HELP
-        }
+            public string label;
+            public int id;
+        };
+
 
         const string sendDweller = "sd";
         const string getDwellerStatus = "howdy";

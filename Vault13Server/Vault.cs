@@ -37,11 +37,11 @@ namespace Vault13Server
         }
         public bool SendDwellerToWasteland(string name, UInt16 timeInHours)
         {
-            foreach (var dweller in dwellersList)
+            for(int i=0; i< dwellersList.Count();i++)
             {
-                if (dweller.Name == name)
+                if (dwellersList[i].Name == name && dwellersList[i].PersonalStatus != Dweller.Status.IN_WASTELAND)
                 {
-                    dweller.PersonalStatus = Dweller.Status.IN_WASTELAND;
+                    dwellersList[i].PersonalStatus = Dweller.Status.IN_WASTELAND;
                     //Запустить в другой таске таймер на timeInHours;
                     return true;
                 }

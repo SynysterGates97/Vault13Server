@@ -46,7 +46,7 @@ namespace Vault13Server
 
         public void GetDamageInWastelands()
         {
-            long timeInWastelandSec_real = TimeInWastelandMs / 1000;
+            long timeInWastelandSec_real = TimeInWastelandMs * 1000;
             int deadlyTimeInWastelandSec_real = deadlyTimeInWastelandMin_real * 60;
 
             //в дальнейшем можно добавить учет опыта и характеристик.
@@ -80,11 +80,14 @@ namespace Vault13Server
                 {
                     //Если отправляем жителя в пустоши - устанавливаем время начала путешествия.
                     TimeOfAdventureBegin = DateTime.Now;
+                    personalStatus = value;
                 }
                 else if(value == Status.IN_VAULT)
                 {
                     //Если житель вернулся в убежище - его здоровье пополняется полностью
+                    personalStatus = value;
                     FillHealth();
+
                 }
             }
         }
@@ -119,7 +122,7 @@ namespace Vault13Server
         static int NewDwellerNameCount = 0;
         public Dweller()
         {
-            Name = "Stranger" + NewDwellerNameCount.ToString();
+            Name = "Name" + NewDwellerNameCount.ToString();
             NewDwellerNameCount++;
         }
 
