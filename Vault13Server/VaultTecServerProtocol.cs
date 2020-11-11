@@ -10,6 +10,12 @@ namespace Vault13Server
     [Serializable]
     class VaultTecServerProtocol
     {
+        struct CommandAndArgument
+        {
+            Command command;
+            string argument;
+        }
+
         //commands:
         //sd <name>,<money>- (send dweller) отправить жителя <name> с жаловнием в <money> крышок в пустоши за крышками.
             //чтобы отправить жителя за крышками, нужно его ими снарядить.
@@ -30,6 +36,17 @@ namespace Vault13Server
 
         //help
 
+        public enum Command
+        {
+            UNKNOWN_COMMAND = -1,
+            SEND_DWELLER,
+            GET_DWELLER_STATUS,
+            POPULATION_COUNT,
+            POPULATION_LIST,
+            MONEY,
+            HELP
+        }
+
         const string sendDweller = "sd";
         const string getDwellerStatus = "howdy";
         const string populationCount = "popcount";
@@ -37,7 +54,6 @@ namespace Vault13Server
         const string getMoney = "muneh";
         const string help = "help";
 
-        string Command
-        { get; set; }
     }
+
 }

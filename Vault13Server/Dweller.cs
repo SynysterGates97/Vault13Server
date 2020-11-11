@@ -8,6 +8,7 @@ namespace Vault13Server
 {
     class Dweller
     {
+        const int deadlyTimeInWastelandMin_real = 10;
         //мб еще айдишники придумать?
         const UInt16 maxHealth = 100;
 
@@ -30,8 +31,8 @@ namespace Vault13Server
             set; get;
         }
 
-        
 
+        Random rand = new Random();
         public UInt16 HP
         {
             set
@@ -43,15 +44,23 @@ namespace Vault13Server
             }
         }
 
-        public void GetDamage(UInt16 damage)
+        public void GetDamageInWastelands()
         {
-            if (damage >= healthPoints)
+            long timeInWastelandSec_real = TimeInWastelandMs / 1000;
+            int deadlyTimeInWastelandSec_real = deadlyTimeInWastelandMin_real * 60;
+
+            //в дальнейшем можно добавить учет опыта и характеристик.
+            int maxRandomDamage = (int)(100 * timeInWastelandSec_real / deadlyTimeInWastelandSec_real);
+            int minRandomDamage = 0;
+            int randomDamage = rand.Next(minRandomDamage, maxRandomDamage);
+
+            if (randomDamage >= healthPoints)
             {
                 healthPoints = 0;
                 PersonalStatus = Status.DEAD;
             }
             else
-                healthPoints -= damage;
+                healthPoints -= (UInt16)randomDamage;//todo: переполнение разряда. Но вроде как невозможно.
         }
 
         public void FillHealth()
@@ -85,11 +94,19 @@ namespace Vault13Server
             set; get;
         }
 
-        public bool IsReturnedFromWasteland()
+        public long TimeInWastelandMs
         {
-            //long timePassedMs = (DateTime.UtcNow.Ticks- TimeOfAdventureBegin.Ticks)/ TimeSpan.TicksPerMillisecond; // Должно работать
-            long timePassedMs = DateTime.UtcNow.ToFileTimeUtc() - TimeOfAdventureBegin.ToFileTimeUtc();
-            if (timePassedMs >= WastelandResearchTimeSec)
+            get
+            {
+                //long timePassedMs = (DateTime.UtcNow.Ticks- TimeOfAdventureBegin.Ticks)/ TimeSpan.TicksPerMillisecond; // Должно работать
+                long timePassedMs = DateTime.UtcNow.ToFileTimeUtc() - TimeOfAdventureBegin.ToFileTimeUtc();
+                return timePassedMs;
+            }
+        }
+
+        public bool IsReturnedFromWasteland()
+        {            
+            if (TimeInWastelandMs >= WastelandResearchTimeSec)
                 return true;
 
             return false;
