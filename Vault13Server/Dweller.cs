@@ -46,11 +46,10 @@ namespace Vault13Server
 
         public void GetDamageInWastelands()
         {
-            long timeInWastelandSec_real = TimeInWastelandMs * 1000;
             int deadlyTimeInWastelandSec_real = deadlyTimeInWastelandMin_real * 60;
 
             //в дальнейшем можно добавить учет опыта и характеристик.
-            int maxRandomDamage = (int)(100 * timeInWastelandSec_real / deadlyTimeInWastelandSec_real);
+            int maxRandomDamage = (int)(100 * TimeInWastelandSec / deadlyTimeInWastelandSec_real);
             int minRandomDamage = 0;
             int randomDamage = rand.Next(minRandomDamage, maxRandomDamage);
 
@@ -97,19 +96,19 @@ namespace Vault13Server
             set; get;
         }
 
-        public long TimeInWastelandMs
+        public UInt32 TimeInWastelandSec
         {
             get
             {
                 //long timePassedMs = (DateTime.UtcNow.Ticks- TimeOfAdventureBegin.Ticks)/ TimeSpan.TicksPerMillisecond; // Должно работать
-                long timePassedMs = DateTime.UtcNow.ToFileTimeUtc() - TimeOfAdventureBegin.ToFileTimeUtc();
-                return timePassedMs;
+                UInt32 timePassedSec = (UInt32)DateTime.Now.Subtract(new DateTime(1970, 1, 1)).TotalSeconds - (UInt32)TimeOfAdventureBegin.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+                return timePassedSec;
             }
         }
 
         public bool IsReturnedFromWasteland()
         {            
-            if (TimeInWastelandMs >= WastelandResearchTimeSec)
+            if (TimeInWastelandSec >= WastelandResearchTimeSec)
                 return true;
 
             return false;
