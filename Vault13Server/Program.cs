@@ -26,7 +26,7 @@ namespace Vault13Server
                         }
                         else
                         {
-                            reply = "Данный житель не может быть отправлен на исследование пустошей";
+                            reply = "Данный житель не может быть отправлен на исследование. Бюджет убежища сейчас " + vault13.VaultBudget;
                         }
 
                     }
@@ -56,6 +56,37 @@ namespace Vault13Server
                     else
                     {
                         reply = "Неверный формат команды sd";
+                    }
+
+                }
+                if (argv[0] == "muneh")
+                {
+                    if (argc == 1)
+                    {
+                        reply = "Бюджет убежища: " + vault13.VaultBudget.ToString();
+
+                    }
+                    else
+                    {
+                        reply = "Неверный формат команды muneh";
+                    }
+
+                }
+                if (argv[0] == "letin")
+                {
+                    if (argc == 2)
+                    {
+                        if (vault13.LetDwellerIn(argv[1]))
+                            reply = "Житель " + argv[1] + " попал в убежище";
+
+                    }
+                    else if(argc == 2 && argv[2] == "all")
+                    {
+                        reply = vault13.LetAllDwellersIn() ? "все жители вошли в убежище" : "некому открывать дверь";
+                    }
+                    else
+                    {
+                        reply = "Неверный формат команды muneh";
                     }
 
                 }

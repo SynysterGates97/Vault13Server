@@ -8,8 +8,51 @@ namespace Vault13Server
 {
     class Dweller
     {
+        const int deadlyTimeInWastelandMin_real = 10;
+        //мб еще айдишники придумать?
+        const UInt16 maxHealth = 100;
+
+        UInt16 healthPoints = maxHealth;
+        DateTime timeOfAdventureBegin = DateTime.MinValue;
+
+        Status personalStatus = Status.IN_VAULT;
+        public enum Status
+        {
+            IN_VAULT,
+            IN_WASTELAND,
+            AT_THE_DOOR,
+            DEAD,
+        };
+
+        public UInt32 GainedMoney
+        {
+            set;get;
+        }
+
+        public void EarnMoneyInWastelandByTime()
+        {
+            int deadlyTimeInWastelandSec_real = deadlyTimeInWastelandMin_real * 60;
+
+            int maxMoneyPerUpdateCycle = 100;
+
+            //в дальнейшем можно добавить учет опыта и характеристик.
+            int maxRandomMoney= maxMoneyPerUpdateCycle * (int)(healthPoints / 10 + TimeInWastelandSec/ deadlyTimeInWastelandSec_real);
+
+            int randomMoney = rand.Next(-maxRandomMoney/10, maxRandomMoney/5);
+
+            if (randomMoney < 0 && GainedMoney - Math.Abs(randomMoney) < 0)
+                GainedMoney = 0;
+            else
+            {
+                GainedMoney += (UInt32)randomMoney;
+            }
+
+
+
+        }
         public string GetStringStatus()
         {
+
             string stringStatus = "unknown";
             switch (PersonalStatus)
             {
@@ -40,22 +83,6 @@ namespace Vault13Server
             }
             return stringStatus;
         }
-            const int deadlyTimeInWastelandMin_real = 10;
-        //мб еще айдишники придумать?
-        const UInt16 maxHealth = 100;
-
-        UInt16 healthPoints = maxHealth;
-        DateTime timeOfAdventureBegin = DateTime.MinValue;
-
-        Status personalStatus = Status.IN_VAULT;
-        public enum Status
-        {
-            IN_VAULT,
-            IN_WASTELAND,
-            AT_THE_DOOR,
-            DEAD,
-        };
-
 
 
         public string Name
