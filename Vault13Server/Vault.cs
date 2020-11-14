@@ -22,29 +22,47 @@ namespace Vault13Server
                 return updateInfoPeriodSec;
             }
         }
+
+        public int GetDwellersIndexByName(string name)
+        {
+            for (int i = 0; i < dwellersList.Count(); i++)
+            {
+                if (dwellersList[i].Name == name)
+                {
+                    return i;
+                }
+            }
+            return -1;
+        }
         //1 реальная минута - 1 час игрового времени
         //потоконебезопасная функция
         public void NotifyVault()
         {
             //стоит запускать в другой таске
-            foreach (var dweller in dwellersList)
+            for (int i = 0; i < dwellersList.Count(); i++)
             {
-                if (dweller.PersonalStatus == Dweller.Status.IN_WASTELAND)//для жителей в пустошах
+                if (dwellersList[i].PersonalStatus == Dweller.Status.IN_WASTELAND)//для жителей в пустошах
                 {
-                    dweller.GetDamageInWastelands();
+                    if (dwellersList[i].IsReturnedFromWasteland())
+                    {
+                        dwellersList[i].PersonalStatus = Dweller.Status.AT_THE_DOOR;
+                    }
+                    else
+                    {
+                        dwellersList[i].GetDamageInWastelands();
+                    }
+
                 }
             }
         }
         public bool SendDwellerToWasteland(string name, UInt16 timeInHours)
         {
-            for(int i=0; i< dwellersList.Count();i++)
+            int dwellersIndex = GetDwellersIndexByName(name);
+            if(dwellersIndex >= 0 && timeInHours != 0)
             {
-                if (dwellersList[i].Name == name && dwellersList[i].PersonalStatus != Dweller.Status.IN_WASTELAND)
-                {
-                    dwellersList[i].PersonalStatus = Dweller.Status.IN_WASTELAND;
-                    //Запустить в другой таске таймер на timeInHours;
-                    return true;
-                }
+                dwellersList[dwellersIndex].PersonalStatus = Dweller.Status.IN_WASTELAND;
+                dwellersList[dwellersIndex].WastelandResearchTimeSec = timeInHours /** 60*/;
+                return true;
             }
             return false;
         }

@@ -9,8 +9,9 @@ namespace Vault13Server
 {
     class Program
     {
-        static void ExecuteCommand(int argc, string[] argv)
+        static string ExecuteCommand(int argc, string[] argv)
         {
+            string reply = "Неизвестная команда";
             if (argc > 0)
             {
                 if (argv[0] == "sd")
@@ -19,26 +20,47 @@ namespace Vault13Server
                     {
                         string dwellerToWastelandName = argv[1];
                         UInt16 adventureTimeHours = Convert.ToUInt16(argv[2]);
-                        if(vault13.SendDwellerToWasteland(dwellerToWastelandName, adventureTimeHours))
+                        if (vault13.SendDwellerToWasteland(dwellerToWastelandName, adventureTimeHours))
                         {
-                            Console.WriteLine("Житель отправлен на исследование пустошей");
+                            reply = "Житель отправлен на исследование пустошей";
                         }
                         else
                         {
-                            Console.WriteLine("Данный житель не может быть отправлен на исследование пустошей");
-                        }    
+                            reply = "Данный житель не может быть отправлен на исследование пустошей";
+                        }
 
                     }
-                    Console.WriteLine("Неверный формат команды sd");
+                    else
+                    {
+                        reply = "Неверный формат команды sd";
+                    }
 
                 }
-                
-            }
-            else
-            {
-                Console.WriteLine("Неверная команда используйте help для вывода списка команд");
-            }    
+                if (argv[0] == "howdy")
+                {
+                    if (argc >= 2)
+                    {
+                        string dwellerToWastelandName = argv[1];
+                        int dwellersIndex = vault13.GetDwellersIndexByName(dwellerToWastelandName);
+                        if(dwellersIndex >= 0)
+                        {
+                            string status =  vault13.dwellersList[dwellersIndex].GetStringStatus();
+                            reply = String.Format("{0:s} {1:s}: ", dwellerToWastelandName, status);
+                        }
+                        else
+                        {
+                            reply = String.Format("В убежище нет жителя с именем {0:s}: ", dwellerToWastelandName);
+                        }
 
+                    }
+                    else
+                    {
+                        reply = "Неверный формат команды sd";
+                    }
+
+                }
+            }
+            return reply;
         }
         static void UpdateVaultInfoDelegate()
         {
@@ -69,7 +91,8 @@ namespace Vault13Server
 
                 string[] argv = VaultTecProtocolParser.ParseCommandString(cmd);
 
-                ExecuteCommand(argv.Count(),argv);
+                string reply = ExecuteCommand(argv.Count(),argv);
+                Console.WriteLine(reply);
                 Thread.Sleep(1000);
             }
         }

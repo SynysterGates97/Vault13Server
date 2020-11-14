@@ -8,7 +8,39 @@ namespace Vault13Server
 {
     class Dweller
     {
-        const int deadlyTimeInWastelandMin_real = 10;
+        public string GetStringStatus()
+        {
+            string stringStatus = "unknown";
+            switch (PersonalStatus)
+            {
+                case Status.AT_THE_DOOR:
+                    {
+                        stringStatus = "ждёт у двери";
+                        break;
+                    }
+                case Status.DEAD:
+                    {
+                        stringStatus = "умер";
+                        break;
+                    }
+                case Status.IN_VAULT:
+                    {
+                        stringStatus = "в убежище";
+                        break;
+                    }
+                case Status.IN_WASTELAND:
+                    {
+                        stringStatus = "в пустошах";
+                        break;
+                    }
+                default:
+                    break;
+
+
+            }
+            return stringStatus;
+        }
+            const int deadlyTimeInWastelandMin_real = 10;
         //мб еще айдишники придумать?
         const UInt16 maxHealth = 100;
 
@@ -83,9 +115,14 @@ namespace Vault13Server
                 }
                 else if(value == Status.IN_VAULT)
                 {
-                    //Если житель вернулся в убежище - его здоровье пополняется полностью
+                    //Если жителя впустили в убежище - его здоровье пополняется полностью
                     personalStatus = value;
                     FillHealth();
+
+                }
+                else if (value == Status.AT_THE_DOOR)
+                {
+                    personalStatus = value;
 
                 }
             }
