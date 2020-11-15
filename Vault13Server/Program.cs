@@ -12,6 +12,39 @@ namespace Vault13Server
 {
     class Program
     {
+        private static Mutex mutex = new Mutex();
+        
+        static void UpdateVaultInfoDelegate()
+        {
+            if (vault13 == null)
+                return;
+
+            while (true)
+            {
+                if (mutex.WaitOne(1000))
+                {
+                    vault13.NotifyVault();
+                }
+                mutex.ReleaseMutex();
+
+                Thread.Sleep(vault13.UpdateInfoPeriodSec * 1000);
+            }
+
+        }
+
+        static Vault vault13 = new Vault(20);
+
+        static IPAddress serverIp = new IPAddress(new byte[] { 127, 0, 0, 1 });
+        static int serverPort = 8000;
+
+        static IPEndPoint serverIpEndPoint = new IPEndPoint(serverIp, serverPort);
+
+        static Socket listenSocket = new Socket(AddressFamily.InterNetwork,
+                                                SocketType.Stream,
+                                                ProtocolType.Tcp);
+
+        static Task InformationUpdateTask;
+
         static string ExecuteCommand(int argc, string[] argv)
         {
             string reply = "Неизвестная команда";
@@ -45,9 +78,9 @@ namespace Vault13Server
                     {
                         string dwellerToWastelandName = argv[1];
                         int dwellersIndex = vault13.GetDwellersIndexByName(dwellerToWastelandName);
-                        if(dwellersIndex >= 0)
+                        if (dwellersIndex >= 0)
                         {
-                            string status =  vault13.dwellersList[dwellersIndex].GetStringStatus();
+                            string status = vault13.dwellersList[dwellersIndex].GetStringStatus();
                             reply = String.Format("{0:s} {1:s}: ", dwellerToWastelandName, status);
                         }
                         else
@@ -58,7 +91,7 @@ namespace Vault13Server
                     }
                     else
                     {
-                        reply = "Неверный формат команды sd";
+                        reply = "Неверный формат команды howdy";
                     }
 
                 }
@@ -77,52 +110,26 @@ namespace Vault13Server
                 }
                 if (argv[0] == "letin")
                 {
-                    if (argc == 2)
+                    if (argc == 2 && argv[1] == "all")
+                    {
+                        reply = vault13.LetAllDwellersIn() ? "все жители вошли в убежище" : "некому открывать дверь";
+                    }
+                    else if (argc == 2)
                     {
                         if (vault13.LetDwellerIn(argv[1]))
                             reply = "Житель " + argv[1] + " попал в убежище";
 
                     }
-                    else if(argc == 2 && argv[2] == "all")
-                    {
-                        reply = vault13.LetAllDwellersIn() ? "все жители вошли в убежище" : "некому открывать дверь";
-                    }
                     else
                     {
-                        reply = "Неверный формат команды muneh";
+                        reply = "Неверный формат команды letin";
                     }
 
                 }
             }
             return reply;
         }
-   
-        static void UpdateVaultInfoDelegate()
-        {
-            if (vault13 == null)
-                return;
 
-            while (true)
-            {
-                vault13.NotifyVault();
-
-                Thread.Sleep(vault13.UpdateInfoPeriodSec * 1000);
-            }
-
-        }
-
-        static Vault vault13 = new Vault(20);
-
-        static IPAddress serverIp = new IPAddress(new byte[] { 127, 0, 0, 1 });
-        static int serverPort = 8000;
-
-        static IPEndPoint serverIpEndPoint = new IPEndPoint(serverIp, serverPort);
-
-        static Socket listenSocket = new Socket(AddressFamily.InterNetwork,
-                                                SocketType.Stream,
-                                                ProtocolType.Tcp);
-
-        static Task InformationUpdateTask;
         static void Main(string[] args)
         {
             VaultTecServerProtocol vaultTecServerProtocol = new VaultTecServerProtocol();
@@ -150,7 +157,12 @@ namespace Vault13Server
 
                         string[] cmdArgvs = VaultTecProtocolParser.ParseCommandString(clientsRequest);
 
-                        string reply = ExecuteCommand(cmdArgvs.Count(), cmdArgvs);
+                        string reply = "";
+                        if (mutex.WaitOne(1000))
+                        {
+                            reply = ExecuteCommand(cmdArgvs.Count(), cmdArgvs);
+                        }
+                        mutex.ReleaseMutex();
 
                         Console.WriteLine("<< " + reply);
 
