@@ -5,6 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
 
+using System.Net;
+using System.Net.Sockets;
+
 namespace Vault13Server
 {
     class Program
@@ -93,6 +96,7 @@ namespace Vault13Server
             }
             return reply;
         }
+   
         static void UpdateVaultInfoDelegate()
         {
             if (vault13 == null)
@@ -106,7 +110,17 @@ namespace Vault13Server
             }
 
         }
+
         static Vault vault13 = new Vault(20);
+
+        static IPAddress serverIp = new IPAddress(new byte[] { 127, 0, 0, 1 });
+        static int serverPort = 8000;
+
+        static IPEndPoint serverIpEndPoint = new IPEndPoint(serverIp, serverPort);
+
+        static Socket listenSocket = new Socket(AddressFamily.InterNetwork,
+                                                SocketType.Stream,
+                                                ProtocolType.Tcp);
 
         static Task InformationUpdateTask;
         static void Main(string[] args)
@@ -115,17 +129,45 @@ namespace Vault13Server
 
             InformationUpdateTask = new Task(UpdateVaultInfoDelegate);
             InformationUpdateTask.Start();
+
+            listenSocket.Bind(serverIpEndPoint);
+            listenSocket.Listen(100);
+
             while (true)
             {
-                Console.WriteLine("EnterCommand");
-                string cmd = Console.ReadLine();
+                try
+                {
+                    Socket connectedSocket = listenSocket.Accept();
 
-                string[] argv = VaultTecProtocolParser.ParseCommandString(cmd);
+                    int rxBytesCount = 0;
+                    byte[] rxTxBuf = new byte[1024];
 
-                string reply = ExecuteCommand(argv.Count(),argv);
-                Console.WriteLine(reply);
-                Thread.Sleep(1000);
-            }
+                    rxBytesCount = connectedSocket.Receive(rxTxBuf);
+                    if(rxBytesCount > 0)
+                    {
+                        string clientsRequest = Encoding.UTF8.GetString(rxTxBuf, 0, rxBytesCount);
+                        Console.WriteLine(">> " + clientsRequest);
+
+                        string[] cmdArgvs = VaultTecProtocolParser.ParseCommandString(clientsRequest);
+
+                        string reply = ExecuteCommand(cmdArgvs.Count(), cmdArgvs);
+
+                        Console.WriteLine("<< " + reply);
+
+                        rxTxBuf = Encoding.UTF8.GetBytes(reply);//по идее нужна проверка размера
+
+                        connectedSocket.Send(rxTxBuf);
+                    }
+
+                    
+                    connectedSocket.Shutdown(SocketShutdown.Both);
+                    connectedSocket.Close();
+                }
+                catch
+                {
+
+                }
+            }        
         }
     }
 }
