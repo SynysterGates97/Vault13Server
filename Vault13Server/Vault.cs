@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Vault13Server
 {
-    class Vault
+    public class Vault
     {
         public List<Dweller> dwellersList = new List<Dweller>();
 

@@ -10,7 +10,7 @@ using System.Net.Sockets;
 
 namespace Vault13Server
 {
-    class Program
+    public class VaultServer
     {
         private static Mutex mutex = new Mutex();
         
@@ -45,7 +45,7 @@ namespace Vault13Server
 
         static Task InformationUpdateTask;
 
-        static string ExecuteCommand(int argc, string[] argv)
+        public static string ExecuteCommand(int argc, string[] argv)
         {
             string reply = "Неизвестная команда";
             if (argc > 0)

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Vault13Server
 {
-    class VaultTecProtocolParser
+    public class VaultTecProtocolParser
     {
         static public string[] ParseCommandString(string cmd)
         {

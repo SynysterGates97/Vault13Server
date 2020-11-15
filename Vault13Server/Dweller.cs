@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Vault13Server
 {
-    class Dweller
+    public class Dweller
     {
         const int deadlyTimeInWastelandMin_real = 10;
         //мб еще айдишники придумать?
