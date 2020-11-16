@@ -26,7 +26,7 @@ namespace Vault13Server
 
         public UInt32 GainedMoney
         {
-            set;get;
+            set; get;
         }
 
         public void EarnMoneyInWastelandByTime()
@@ -36,9 +36,9 @@ namespace Vault13Server
             int maxMoneyPerUpdateCycle = 100;
 
             //в дальнейшем можно добавить учет опыта и характеристик.
-            int maxRandomMoney= maxMoneyPerUpdateCycle * (int)(healthPoints / 10 + TimeInWastelandSec/ deadlyTimeInWastelandSec_real);
+            int maxRandomMoney = maxMoneyPerUpdateCycle * (int)(healthPoints / 10 + TimeInWastelandSec / deadlyTimeInWastelandSec_real);
 
-            int randomMoney = rand.Next(-maxRandomMoney/10, maxRandomMoney/5);
+            int randomMoney = rand.Next(-maxRandomMoney / 10, maxRandomMoney / 5);
 
             if (randomMoney < 0 && GainedMoney - Math.Abs(randomMoney) < 0)
                 GainedMoney = 0;
@@ -96,6 +96,9 @@ namespace Vault13Server
         {
             set
             {
+                //if(value == 0)
+                //    PersonalStatus = Status.DEAD;
+                //healthPoints = value;
             }
             get
             {
@@ -150,6 +153,12 @@ namespace Vault13Server
                 else if (value == Status.AT_THE_DOOR)
                 {
                     personalStatus = value;
+
+                }
+                else if (value == Status.DEAD)
+                {
+                    personalStatus = value;
+                    GainedMoney = 0;
 
                 }
             }

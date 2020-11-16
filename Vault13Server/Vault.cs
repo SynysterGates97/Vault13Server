@@ -41,14 +41,8 @@ namespace Vault13Server
             int dwellersInCount = 0;
             for (int i = 0; i < dwellersList.Count(); i++)
             {
-                if (dwellersList[i].PersonalStatus == Dweller.Status.AT_THE_DOOR)
-                {
-                    dwellersList[i].PersonalStatus = Dweller.Status.IN_VAULT;
-                    VaultBudget += dwellersList[i].GainedMoney;
-                    dwellersList[i].GainedMoney = 0;
-
+                if (LetDwellerIn(dwellersList[i].Name))
                     dwellersInCount++;
-                }
             }
             return dwellersInCount > 0;
         }
@@ -105,7 +99,7 @@ namespace Vault13Server
             {
                 vaultBudget -= 500;
                 int dwellersIndex = GetDwellersIndexByName(name);
-                if (dwellersIndex >= 0 && timeInHours != 0 && dwellersList[dwellersIndex].PersonalStatus == Dweller.Status.IN_VAULT)
+                if (dwellersIndex >= 0 && dwellersList[dwellersIndex].PersonalStatus == Dweller.Status.IN_VAULT)
                 {
                     dwellersList[dwellersIndex].PersonalStatus = Dweller.Status.IN_WASTELAND;
                     dwellersList[dwellersIndex].WastelandResearchTimeSec = timeInHours /** 60*/;

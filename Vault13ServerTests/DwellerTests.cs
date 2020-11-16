@@ -12,7 +12,7 @@ namespace Vault13Server.Tests
     public class DwellerTests
     {
         [TestMethod()]
-        public void GetDamageInWastelandsTest()
+        public void GetDamageInWastelandsTestHpFill()
         {
             Dweller testDweller = new Dweller("Jhonny");
             //отправим в пустоши
@@ -20,7 +20,23 @@ namespace Vault13Server.Tests
             testDweller.HP = 50;//уменьшим здоровье
             //При возвращении в убежище жителя лечат
             testDweller.PersonalStatus = Dweller.Status.IN_VAULT;
-            Assert.AreEqual(testDweller.HP,100);
+            Assert.AreEqual(testDweller.HP, 100);
+        }
+
+        [TestMethod()]
+        public void GetDamageInWastelandsTestDead()
+        {
+            Dweller testDweller = new Dweller("Jimmy");
+            testDweller.HP = 100;
+
+            testDweller.PersonalStatus = Dweller.Status.IN_WASTELAND;
+
+            //Очень грубый шаг во времени
+            testDweller.TimeOfAdventureBegin = new DateTime(2020, 11, 1);
+            testDweller.GetDamageInWastelands();
+
+
+            Assert.AreEqual(Dweller.Status.DEAD,testDweller.PersonalStatus);
         }
     }
 }

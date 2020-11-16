@@ -51,9 +51,9 @@
   <ItemGroup>
     <Compile Include="DwellerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UnitTest2.cs" />
     <Compile Include="VaultServerTests.cs" />
     <Compile Include="VaultTecProtocolParserTests.cs" />
+    <Compile Include="VaultTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
