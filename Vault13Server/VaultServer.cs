@@ -4,17 +4,27 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
-
 using System.Net;
 using System.Net.Sockets;
 
+
+
+
 namespace Vault13Server
 {
-    public class VaultServer
+    class VaultServer
     {
-        private static Mutex mutex = new Mutex();
-        
-        static void UpdateVaultInfoDelegate()
+        public VaultServer()
+        {
+            InformationUpdateTask = new Task(UpdateVaultInfoDelegate);
+            InformationUpdateTask.Start();
+
+            listenSocket.Bind(serverIpEndPoint);
+            listenSocket.Listen(100);
+        }
+        private Mutex mutex = new Mutex();
+
+        void UpdateVaultInfoDelegate()
         {
             if (vault13 == null)
                 return;
@@ -32,20 +42,20 @@ namespace Vault13Server
 
         }
 
-        static Vault vault13 = new Vault(20);
+        Vault vault13 = new Vault(20);
 
         static IPAddress serverIp = new IPAddress(new byte[] { 127, 0, 0, 1 });
         static int serverPort = 8000;
 
-        static IPEndPoint serverIpEndPoint = new IPEndPoint(serverIp, serverPort);
+        IPEndPoint serverIpEndPoint = new IPEndPoint(serverIp, serverPort);
 
-        static Socket listenSocket = new Socket(AddressFamily.InterNetwork,
+        Socket listenSocket = new Socket(AddressFamily.InterNetwork,
                                                 SocketType.Stream,
                                                 ProtocolType.Tcp);
 
-        static Task InformationUpdateTask;
+        Task InformationUpdateTask;
 
-        public static string ExecuteCommand(int argc, string[] argv)
+        public string ExecuteCommand(int argc, string[] argv)
         {
             string reply = "Неизвестная команда";
             if (argc > 0)
@@ -130,56 +140,47 @@ namespace Vault13Server
             return reply;
         }
 
-        static void Main(string[] args)
+        public string ProcessClientRequestIfNeed()
         {
-            VaultTecServerProtocol vaultTecServerProtocol = new VaultTecServerProtocol();
+            string serverResponse = null;
 
-            InformationUpdateTask = new Task(UpdateVaultInfoDelegate);
-            InformationUpdateTask.Start();
-
-            listenSocket.Bind(serverIpEndPoint);
-            listenSocket.Listen(100);
-
-            while (true)
+            try
             {
-                try
+                Socket connectedSocket = listenSocket.Accept();
+
+                int rxBytesCount = 0;
+                byte[] rxTxBuf = new byte[1024];
+
+                rxBytesCount = connectedSocket.Receive(rxTxBuf);
+                if (rxBytesCount > 0)
                 {
-                    Socket connectedSocket = listenSocket.Accept();
+                    string clientsRequest = Encoding.UTF8.GetString(rxTxBuf, 0, rxBytesCount);
+                    Console.WriteLine(">> " + clientsRequest);
 
-                    int rxBytesCount = 0;
-                    byte[] rxTxBuf = new byte[1024];
+                    string[] cmdArgvs = VaultTecProtocolParser.ParseCommandString(clientsRequest);
 
-                    rxBytesCount = connectedSocket.Receive(rxTxBuf);
-                    if(rxBytesCount > 0)
+                    string reply = "";
+                    if (mutex.WaitOne(1000))
                     {
-                        string clientsRequest = Encoding.UTF8.GetString(rxTxBuf, 0, rxBytesCount);
-                        Console.WriteLine(">> " + clientsRequest);
-
-                        string[] cmdArgvs = VaultTecProtocolParser.ParseCommandString(clientsRequest);
-
-                        string reply = "";
-                        if (mutex.WaitOne(1000))
-                        {
-                            reply = ExecuteCommand(cmdArgvs.Count(), cmdArgvs);
-                        }
-                        mutex.ReleaseMutex();
-
-                        Console.WriteLine("<< " + reply);
-
-                        rxTxBuf = Encoding.UTF8.GetBytes(reply);//по идее нужна проверка размера
-
-                        connectedSocket.Send(rxTxBuf);
+                        reply = ExecuteCommand(cmdArgvs.Count(), cmdArgvs);
                     }
+                    mutex.ReleaseMutex();
 
-                    
-                    connectedSocket.Shutdown(SocketShutdown.Both);
-                    connectedSocket.Close();
-                }
-                catch
-                {
+                    rxTxBuf = Encoding.UTF8.GetBytes(reply);//по идее нужна проверка размера
+                    serverResponse = reply;
 
+                    connectedSocket.Send(rxTxBuf);
                 }
-            }        
+
+
+                connectedSocket.Shutdown(SocketShutdown.Both);
+                connectedSocket.Close();
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine("Server Error!!!" + e.ToString());
+            }
+            return serverResponse;
         }
     }
 }
