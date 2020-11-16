@@ -12,12 +12,14 @@ using System.Net.Sockets;
 
 namespace Vault13Server
 {
-    class VaultServer
+    public class VaultServer
     {
         public VaultServer()
         {
             InformationUpdateTask = new Task(UpdateVaultInfoDelegate);
             InformationUpdateTask.Start();
+
+            serverIpEndPoint = new IPEndPoint(serverIp, serverPort);
 
             listenSocket.Bind(serverIpEndPoint);
             listenSocket.Listen(100);
@@ -42,12 +44,12 @@ namespace Vault13Server
 
         }
 
-        Vault vault13 = new Vault(20);
+        public Vault vault13 = new Vault(20);
 
-        static IPAddress serverIp = new IPAddress(new byte[] { 127, 0, 0, 1 });
-        static int serverPort = 8000;
+        IPAddress serverIp = new IPAddress(new byte[] { 127, 0, 0, 1 });
+        int serverPort = 8000;
 
-        IPEndPoint serverIpEndPoint = new IPEndPoint(serverIp, serverPort);
+        IPEndPoint serverIpEndPoint;
 
         Socket listenSocket = new Socket(AddressFamily.InterNetwork,
                                                 SocketType.Stream,

@@ -12,7 +12,7 @@ namespace Vault13Server.Tests
     public class VaultTecProtocolParserTests
     {
         [TestMethod()]
-        public void ParseCommandStringTest()
+        public void ParseCommandStringTestSepComma()
         {
             string inputString = "sd,Jimmy X,100";
             string[] argv = VaultTecProtocolParser.ParseCommandString(inputString);
@@ -21,6 +21,21 @@ namespace Vault13Server.Tests
                 argv[0] != "sd" ||
                 argv[1] != "Jimmy X" ||
                 argv[2] != "100")
+            {
+                Assert.Fail();
+            }
+
+
+        }
+
+        [TestMethod()]
+        public void ParseCommandStringTestSepSpace()
+        {
+            string inputString = "howdy Name0";
+            string[] argv = VaultTecProtocolParser.ParseCommandString(inputString);
+
+            if (argv.Count() != 1 ||
+                argv[0] != inputString)
             {
                 Assert.Fail();
             }

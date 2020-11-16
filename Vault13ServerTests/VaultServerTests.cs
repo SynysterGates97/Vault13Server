@@ -11,11 +11,22 @@ namespace Vault13Server.Tests
     [TestClass()]
     public class VaultServerTests
     {
+
+        VaultServer vaultServer = new VaultServer();
+
         [TestMethod()]
-        public void ExecuteCommandTest()
+        public void ExecuteCommandTestMoneyAfterSend()
         {
             
-            Assert.Fail();
+            //оптравляем жителя в пустоши - тратим 500 крышек, следующий запрос денег вернет 500 
+            string[] argvSd = { "sd", "Name0", "50" };
+            vaultServer.ExecuteCommand(argvSd.Count(), argvSd);
+
+
+            string[] argvMuneh = { "muneh" };
+            string reply = vaultServer.ExecuteCommand(argvMuneh.Count(), argvMuneh);
+            Assert.AreEqual(reply, "Бюджет убежища: 500");
+
         }
     }
 }
