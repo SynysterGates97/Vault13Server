@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace Vault13Server.Tests
 {
@@ -27,13 +28,21 @@ namespace Vault13Server.Tests
         public void GetDamageInWastelandsTestDead()
         {
             Dweller testDweller = new Dweller("Jimmy");
-            testDweller.HP = 100;
+            testDweller.HP = 1;
 
             testDweller.PersonalStatus = Dweller.Status.IN_WASTELAND;
 
-            //Очень грубый шаг во времени
+            //Искусственно уменьшаем время начала путешествия, чтобы точно "убить жителя"
             testDweller.TimeOfAdventureBegin = new DateTime(2020, 11, 1);
+
+            long deadlyTimeBeginTimeMs = (DateTime.Now.Ticks - TimeSpan.TicksPerMillisecond * 10 * 1000) / TimeSpan.TicksPerMillisecond;
+            testDweller.TimeOfAdventureBegin = new DateTime(deadlyTimeBeginTimeMs);
+            DateTime dateTime = new DateTime();
+
+            Thread.Sleep(100);
             testDweller.GetDamageInWastelands();
+  
+            //
 
 
             Assert.AreEqual(Dweller.Status.DEAD,testDweller.PersonalStatus);

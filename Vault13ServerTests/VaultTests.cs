@@ -27,20 +27,19 @@ namespace Vault13Server.Tests
         }
 
         [TestMethod()]
-        public void LetAllDwellersInTest()
+        public void StatusChangedWhenBackedFromWatelandTest()
         {
             Vault vault = new Vault();
 
             vault.dwellersList.Add(new Dweller("Pam"));
 
             vault.SendDwellerToWasteland("Pam", 2);
-            
+
             Thread.Sleep(3000);
 
             vault.NotifyVault();
 
             int firstDwellerIndex = vault.GetDwellersIndexByName("Pam");
-
 
             Assert.AreEqual(vault.dwellersList[firstDwellerIndex].PersonalStatus, Dweller.Status.AT_THE_DOOR);
         }
@@ -54,7 +53,34 @@ namespace Vault13Server.Tests
 
             int firstDwellerIndex = vault.GetDwellersIndexByName("Pam");
 
-            Assert.AreEqual(firstDwellerIndex,0);
+            Assert.AreEqual(firstDwellerIndex, 0);
+        }
+
+        [TestMethod()]
+        public void LetAllDwellersInTest()
+        {
+            Vault vault = new Vault();
+            vault.dwellersList.Add(new Dweller("Pam"));
+            vault.dwellersList.Add(new Dweller("Jim"));
+
+            vault.SendDwellerToWasteland("Pam", 1);
+            vault.SendDwellerToWasteland("Jim", 1);
+
+            Thread.Sleep(1500);
+            vault.NotifyVault();
+
+            vault.LetAllDwellersIn();
+
+            Dweller.Status status1 = vault.dwellersList[0].PersonalStatus;
+            Dweller.Status status2 = vault.dwellersList[1].PersonalStatus;
+
+            Assert.AreEqual(Dweller.Status.IN_VAULT, status1);
+
+            //if (status1 != Dweller.Status.IN_VAULT ||
+            //    status2 != Dweller.Status.IN_VAULT)
+            //{
+            //    Assert.Fail();
+            //}
         }
     }
 }
