@@ -14,12 +14,25 @@ namespace Vault13Server
 {
     public class VaultServer
     {
-        public VaultServer()
+        public Vault vault13 = new Vault(20);
+
+        IPAddress serverIp = new IPAddress(new byte[] { 127, 0, 0, 1 });
+        int serverPort = 8000;
+
+        IPEndPoint serverIpEndPoint;
+
+        public Socket listenSocket = new Socket(AddressFamily.InterNetwork,
+                                                SocketType.Stream,
+                                                ProtocolType.Tcp);
+
+        Task InformationUpdateTask;
+
+        public VaultServer(int port = 8000)
         {
             InformationUpdateTask = new Task(UpdateVaultInfoDelegate);
             InformationUpdateTask.Start();
 
-            serverIpEndPoint = new IPEndPoint(serverIp, serverPort);
+            serverIpEndPoint = new IPEndPoint(serverIp, port);
 
             listenSocket.Bind(serverIpEndPoint);
             listenSocket.Listen(100);
@@ -44,18 +57,10 @@ namespace Vault13Server
 
         }
 
-        public Vault vault13 = new Vault(20);
-
-        IPAddress serverIp = new IPAddress(new byte[] { 127, 0, 0, 1 });
-        int serverPort = 8000;
-
-        IPEndPoint serverIpEndPoint;
-
-        Socket listenSocket = new Socket(AddressFamily.InterNetwork,
-                                                SocketType.Stream,
-                                                ProtocolType.Tcp);
-
-        Task InformationUpdateTask;
+        public void Terminate()
+        {
+            listenSocket.Close();
+        }
 
         public string ExecuteCommand(int argc, string[] argv)
         {

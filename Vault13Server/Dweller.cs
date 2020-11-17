@@ -8,6 +8,7 @@ namespace Vault13Server
 {
     public class Dweller
     {
+        Random rand = new Random();
         const int deadlyTimeInWastelandMin_real = 10;
         //мб еще айдишники придумать?
         const UInt16 maxHealth = 100;
@@ -90,8 +91,6 @@ namespace Vault13Server
             set; get;
         }
 
-
-        Random rand = new Random();
         public UInt16 HP
         {
             set

@@ -15,10 +15,8 @@ namespace Vault13Server.Tests
     {
         Task listenTask;
 
-        int count = 0;
         void listenSocketDelegate()
         {
-            count = 444;
             while(true)
             {
                 vaultServer.ProcessClientRequestIfNeed();
@@ -33,7 +31,9 @@ namespace Vault13Server.Tests
         {
 
             //оптравляем жителя в пустоши - тратим 500 крышек, следующий запрос денег вернет 500 
-            string[] argvSd = { "sd", "Name4", "50" };
+            vaultServer.vault13.dwellersList.Add(new Dweller("Turk"));
+
+            string[] argvSd = { "sd", "Turk", "50" };
             vaultServer.ExecuteCommand(argvSd.Count(), argvSd);
 
             int dwellerIndex = vaultServer.vault13.GetDwellersIndexByName(argvSd[1]);
@@ -46,6 +46,7 @@ namespace Vault13Server.Tests
 
             bool moneyIsOk = reply == "Бюджет убежища: 500";
 
+            vaultServer.Terminate();
             if (!moneyIsOk || !setDwellerStatusIsOk)
                 Assert.Fail();
 
@@ -56,7 +57,8 @@ namespace Vault13Server.Tests
         {
 
             //оптравляем жителя в пустоши - тратим 500 крышек, следующий запрос денег вернет 500 
-            string[] argvSd = { "sd", "Name4", "50" };
+            vaultServer.vault13.dwellersList.Add(new Dweller("John Dorian"));
+            string[] argvSd = { "sd", "John Dorian", "50" };
             vaultServer.ExecuteCommand(argvSd.Count(), argvSd);
 
             int dwellerIndex = vaultServer.vault13.GetDwellersIndexByName(argvSd[1]);
@@ -69,6 +71,7 @@ namespace Vault13Server.Tests
 
             bool moneyIsOk = reply == "Бюджет убежища: 500";
 
+            vaultServer.Terminate();
             if (!moneyIsOk || !setDwellerStatusIsOk)
                 Assert.Fail();
 
@@ -82,6 +85,7 @@ namespace Vault13Server.Tests
 
             string serverResponse = simpleTestClient.SendRequestAndGetResponse("muneh");
 
+            vaultServer.Terminate();
             if (!serverResponse.Contains("Бюджет"))
                 Assert.Fail();
 

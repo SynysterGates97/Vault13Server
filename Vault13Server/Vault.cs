@@ -11,6 +11,21 @@ namespace Vault13Server
         public List<Dweller> dwellersList = new List<Dweller>();
 
         UInt64 vaultBudget = 1000;
+
+        public Vault()
+        {
+            UpdateInfoPeriodSec = 1;
+        }
+
+        public Vault(int DwellersCount)
+        {
+            for (int i = 0; i < DwellersCount; i++)
+            {
+                Dweller dweller = new Dweller();
+                dwellersList.Add(dweller);
+            }
+        }
+
         public UInt64 VaultBudget
         {
             set
@@ -109,20 +124,5 @@ namespace Vault13Server
             return false;
         }
 
-
-
-        public Vault()
-        {
-            UpdateInfoPeriodSec = 1;
-        }
-
-        public Vault(int DwellersCount)
-        {
-            for(int i = 0; i< DwellersCount; i++)
-            {
-                Dweller dweller = new Dweller();
-                dwellersList.Add(dweller);
-            }
-        }
     }
 }

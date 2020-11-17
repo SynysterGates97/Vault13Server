@@ -19,9 +19,9 @@ namespace Vault13ServerTests
 
         IPEndPoint _serverIpEndPoint;
 
-        public SimpleClient2Tests()
+        public SimpleClient2Tests(int port = 8000)
         {
-            _serverIpEndPoint = new IPEndPoint(_serverIp, _serverPort);
+            _serverIpEndPoint = new IPEndPoint(_serverIp, port);
         }
 
         public string SendRequestAndGetResponse(string request)

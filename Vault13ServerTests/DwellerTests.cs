@@ -28,24 +28,72 @@ namespace Vault13Server.Tests
         public void GetDamageInWastelandsTestDead()
         {
             Dweller testDweller = new Dweller("Jimmy");
-            testDweller.HP = 1;
+            //testDweller.HP = 1;
 
             testDweller.PersonalStatus = Dweller.Status.IN_WASTELAND;
 
             //Искусственно уменьшаем время начала путешествия, чтобы точно "убить жителя"
             testDweller.TimeOfAdventureBegin = new DateTime(2020, 11, 1);
 
-            long deadlyTimeBeginTimeMs = (DateTime.Now.Ticks - TimeSpan.TicksPerMillisecond * 10 * 1000) / TimeSpan.TicksPerMillisecond;
+            //Время в два раза большее смертельного
+            long deadlyTimeBeginTimeMs = DateTime.Now.Ticks - TimeSpan.TicksPerMillisecond * 1000 * 12000;
             testDweller.TimeOfAdventureBegin = new DateTime(deadlyTimeBeginTimeMs);
             DateTime dateTime = new DateTime();
 
             Thread.Sleep(100);
             testDweller.GetDamageInWastelands();
-  
-            //
+
+            Assert.AreEqual(Dweller.Status.DEAD, testDweller.PersonalStatus);
+        }
+
+        [TestMethod()]
+        public void FillHealthTest()
+        {
+            Dweller testDweller = new Dweller("Amy");
+
+            testDweller.WastelandResearchTimeSec = 100;
+            testDweller.PersonalStatus = Dweller.Status.IN_WASTELAND;
+
+            //Время в два раза меньше смертельного. Должен выжить но точно получит урон
+            long timeWithDamage = (DateTime.Now.Ticks - TimeSpan.TicksPerMillisecond * 1000 * 300);
+            testDweller.TimeOfAdventureBegin = new DateTime(timeWithDamage);
+
+            testDweller.GetDamageInWastelands();
+
+            testDweller.FillHealth();
 
 
-            Assert.AreEqual(Dweller.Status.DEAD,testDweller.PersonalStatus);
+            Assert.AreEqual(100, testDweller.HP);
+        }
+
+        [TestMethod()]
+        public void IsReturnedFromWastelandTest()
+        {
+            Dweller testDweller = new Dweller("Karen");
+            testDweller.WastelandResearchTimeSec = 2;
+            testDweller.PersonalStatus = Dweller.Status.IN_WASTELAND;
+            Thread.Sleep(2500);
+
+
+            Assert.AreEqual(true, testDweller.IsReturnedFromWasteland());
+        }
+
+        [TestMethod()]
+        public void EarnMoneyInWastelandByTimeTest()
+        {
+            Dweller testDweller = new Dweller("Karen");
+            testDweller.WastelandResearchTimeSec = 100;
+            testDweller.PersonalStatus = Dweller.Status.IN_WASTELAND;
+
+            //Нужно дать жителю хоть сколько-то денег, т.к. он может либо заработать, либо потерять всё
+            const int testMoney = 20;
+            testDweller.GainedMoney = testMoney;
+            Thread.Sleep(2000);
+            testDweller.EarnMoneyInWastelandByTime();
+
+            if (testDweller.GainedMoney == testMoney)
+                Assert.Fail();
+
         }
     }
 }
